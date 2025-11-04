@@ -1,0 +1,74 @@
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:7.0
+    container_name: zdh_mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password123
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - zdh_network
+
+  # Backend API
+  backend:
+    build: ./backend
+    container_name: zdh_backend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - MONGODB_URI=mongodb://admin:password123@mongodb:27017/zdh?authSource=admin
+      - JWT_SECRET=your-super-secret-jwt-key-change-in-production
+      - PORT=3000
+      - BASE_URL=http://localhost
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./data:/app/data
+      - ./nginx/templates:/app/nginx-templates
+    depends_on:
+      - mongodb
+    networks:
+      - zdh_network
+
+  # Frontend Dashboard
+  frontend:
+    build: ./frontend
+    container_name: zdh_frontend
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    networks:
+      - zdh_network
+
+  # Nginx Reverse Proxy - Main Gateway
+  nginx:
+    image: nginx:alpine
+    container_name: zdh_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/sites:/etc/nginx/sites
+      - ./data/apps:/var/www/apps
+      - ./logs/nginx:/var/log/nginx
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - zdh_network
+
+volumes:
+  mongodb_data:
+
+networks:
+  zdh_network:
+    driver: bridge

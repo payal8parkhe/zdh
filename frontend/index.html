@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zero Downtime Hub</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav class="navbar">
+                <div class="logo">🚀 Zero Downtime Hub</div>
+                <div class="nav-links" id="nav-links">
+                    <a href="#" onclick="showPage('dashboard')">Dashboard</a>
+                    <a href="#" onclick="showPage('apps')">My Apps</a>
+                    <a href="#" onclick="showPage('deployments')">Deployments</a>
+                    <a href="#" onclick="showPage('profile')">Profile</a>
+                    <button class="btn btn-secondary" onclick="logout()" id="logout-btn" style="display: none;">Logout</button>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Login Page -->
+        <div id="login-page" class="page active">
+            <div class="hero">
+                <h1>Zero Downtime Hub</h1>
+                <p>Deploy your applications with zero downtime. Automatic rollbacks. Full visibility.</p>
+                <div style="margin-top: 2rem;">
+                    <button class="btn btn-primary" onclick="showAuthForm('register')">Get Started</button>
+                    <button class="btn btn-secondary" onclick="showAuthForm('login')">Sign In</button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-3">
+                <div class="card">
+                    <h3>🚀 Zero Downtime</h3>
+                    <p>Deploy new versions while old ones are still running. Switch traffic instantly.</p>
+                </div>
+                <div class="card">
+                    <h3>🔁 Auto Rollback</h3>
+                    <p>Automatic rollback if health checks fail. Your users never see errors.</p>
+                </div>
+                <div class="card">
+                    <h3>📊 Full Visibility</h3>
+                    <p>Complete deployment history, logs, and status monitoring.</p>
+                </div>
+            </div>
+
+            <!-- Auth Forms -->
+            <div id="auth-forms" style="display: none; margin-top: 3rem;">
+                <div class="card" style="max-width: 400px; margin: 0 auto;">
+                    <div id="login-form">
+                        <h2 style="margin-bottom: 1rem;">Sign In</h2>
+                        <form onsubmit="login(event)">
+                            <div class="form-group">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-input" id="login-email" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Password</label>
+                                <input type="password" class="form-input" id="login-password" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="width: 100%;">Sign In</button>
+                        </form>
+                        <p style="margin-top: 1rem; text-align: center;">
+                            Don't have an account? 
+                            <a href="#" onclick="showAuthForm('register')" style="color: var(--primary);">Register</a>
+                        </p>
+                    </div>
+
+                    <div id="register-form" style="display: none;">
+                        <h2 style="margin-bottom: 1rem;">Create Account</h2>
+                        <form onsubmit="register(event)">
+                            <div class="form-group">
+                                <label class="form-label">Username</label>
+                                <input type="text" class="form-input" id="register-username" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-input" id="register-email" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Password</label>
+                                <input type="password" class="form-input" id="register-password" required minlength="6">
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="width: 100%;">Create Account</button>
+                        </form>
+                        <p style="margin-top: 1rem; text-align: center;">
+                            Already have an account? 
+                            <a href="#" onclick="showAuthForm('login')" style="color: var(--primary);">Sign In</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Page -->
+        <div id="dashboard-page" class="page">
+            <h1 style="margin-bottom: 2rem;">Dashboard</h1>
+            
+            <div class="grid grid-cols-3" style="margin-bottom: 2rem;">
+                <div class="card">
+                    <h3>Total Apps</h3>
+                    <p id="total-apps" style="font-size: 2rem; font-weight: bold; color: var(--primary);">0</p>
+                </div>
+                <div class="card">
+                    <h3>Active Deployments</h3>
+                    <p id="active-deployments" style="font-size: 2rem; font-weight: bold; color: var(--success);">0</p>
+                </div>
+                <div class="card">
+                    <h3>Success Rate</h3>
+                    <p id="success-rate" style="font-size: 2rem; font-weight: bold; color: var(--warning);">0%</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Recent Deployments</h2>
+                    <button class="btn btn-primary" onclick="showPage('apps')">Deploy New App</button>
+                </div>
+                <div id="recent-deployments">
+                    <p>Loading...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Apps Page -->
+        <div id="apps-page" class="page">
+            <div class="card-header">
+                <h1 class="card-title">My Applications</h1>
+                <button class="btn btn-primary" onclick="showCreateAppForm()">+ New App</button>
+            </div>
+
+            <div id="create-app-form" class="card" style="display: none; margin-bottom: 2rem;">
+                <h2 style="margin-bottom: 1rem;">Deploy New Application</h2>
+                <form onsubmit="submitCreateAppForm(event)">
+                    <div class="form-group">
+                        <label class="form-label">App Name</label>
+                        <input type="text" class="form-input" id="app-name" required placeholder="my-awesome-app">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Description</label>
+                        <input type="text" class="form-input" id="app-description" placeholder="A brief description of your app">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">GitHub Repository URL</label>
+                        <input type="url" class="form-input" id="app-github-url" required 
+                               placeholder="https://github.com/username/repository">
+                        <small style="color: var(--secondary); margin-top: 0.5rem; display: block;">
+                            Provide a public GitHub repository URL
+                        </small>
+                    </div>
+                    <div class="form-group">
+                <label class="form-label" style="display: flex; align-items: center; gap: 0.5rem;">
+                    <input type="checkbox" id="enable-webhook" checked>
+                    Enable CI/CD (Auto-deploy on Git push)
+                </label>
+                <small style="color: var(--secondary); margin-top: 0.5rem; display: block;">
+                    Automatically deploy when you push to the main branch
+                </small>
+            </div>
+                    <div class="form-group">
+                        <label class="form-label">Build Command (optional)</label>
+                        <input type="text" class="form-input" id="app-build-command" 
+                               placeholder="npm run build">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Start Command (optional)</label>
+                        <input type="text" class="form-input" id="app-start-command" 
+                               placeholder="npm start">
+                    </div>
+                    <div style="display: flex; gap: 1rem;">
+                        <button type="submit" class="btn btn-primary" onsubmit="submitCreateAppForm(event)">Deploy App</button>
+                        <button type="button" class="btn btn-secondary" onclick="hideCreateAppForm()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="apps-list">
+                <p>Loading your applications...</p>
+            </div>
+        </div>
+
+        <!-- Deployments Page -->
+        <div id="deployments-page" class="page">
+            <h1 style="margin-bottom: 2rem;">Deployment History</h1>
+            <div id="deployments-list">
+                <p>Loading deployments...</p>
+            </div>
+        </div>
+
+        <!-- Profile Page -->
+        <div id="profile-page" class="page">
+            <div class="card">
+                <h1 style="margin-bottom: 1rem;">Profile</h1>
+                <div id="profile-info">
+                    <p>Loading profile...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Deployment Logs Modal -->
+        <div id="logs-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+            <div class="card" style="max-width: 800px; width: 90%; max-height: 80vh;">
+                <div class="card-header">
+                    <h2 class="card-title">Deployment Logs</h2>
+                    <button class="btn btn-secondary" onclick="hideLogsModal()">Close</button>
+                </div>
+                <div class="logs-container" id="logs-content">
+                    Loading logs...
+                </div>
+            </div>
+        </div>
+
+        <!-- Deployment Modal -->
+        <div id="deploy-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+            <div class="card" style="max-width: 800px; width: 90%; max-height: 80vh;">
+                <div class="card-header">
+                    <h2 class="card-title" id="deploy-modal-title">Deploying App</h2>
+                    <button class="btn btn-secondary" onclick="hideDeployModal()">Close</button>
+                </div>
+                <div class="logs-container" id="deploy-logs-content">
+                    Starting deployment...
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
